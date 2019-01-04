@@ -25,7 +25,7 @@ func main() {
 	wg := &sync.WaitGroup{}
 
 	for _, ips := range chunks {
-		go func(ips []string) {
+		go func(ips []string, wg *sync.WaitGroup) {
 			wg.Add(1)
 			defer wg.Done()
 
@@ -61,7 +61,7 @@ func main() {
 				exec.CommandContext(context.Background(), "/bin/sh", "-c", buffer.String()).Run()
 				fmt.Printf("[%s] Execute '%s'\n", ip, buffer.String())
 			}
-		}(ips)
+		}(ips, wg)
 	}
 	wg.Wait()
 }
