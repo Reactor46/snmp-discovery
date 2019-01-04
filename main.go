@@ -6,6 +6,7 @@ import (
 	"net"
 	"os"
 	"os/exec"
+	"strings"
 	"sync"
 	"text/template"
 	"time"
@@ -58,7 +59,7 @@ func main() {
 				host := ip
 				names, err := net.LookupAddr(ip)
 				if err == nil && len(names) > 0 {
-					host = names[0]
+					host = strings.TrimRight(names[0], ".")
 				}
 
 				var buffer bytes.Buffer
