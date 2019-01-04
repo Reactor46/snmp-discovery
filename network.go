@@ -20,7 +20,7 @@ func calcIPs(network string) []string {
 
 	ip, ipnet, err := net.ParseCIDR(network)
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "Network '%s' skipped: %v", network, err)
+		fmt.Fprintf(os.Stderr, "Network '%s' skipped: %v\n", network, err)
 		return ips
 	}
 
@@ -46,7 +46,7 @@ func getIPs(opts *options) []string {
 	}
 	for _, ip := range opts.ExcludedIPs {
 		if net.ParseIP(ip) == nil {
-			fmt.Fprintf(os.Stderr, "Excluded IP '%s' skipped: unvalid IP", ip)
+			fmt.Fprintf(os.Stderr, "Excluded IP '%s' skipped: unvalid IP\n", ip)
 		} else {
 			excludedIPs = append(excludedIPs, ip)
 		}

@@ -2,7 +2,6 @@ package main
 
 import (
 	"bytes"
-	"context"
 	"fmt"
 	"net"
 	"os"
@@ -22,11 +21,11 @@ func main() {
 	command := template.Must(template.New("command").Parse(opts.Execute))
 
 	chunks := funk.Chunk(ips, len(ips)/opts.Parallel+1).([][]string)
-	wg := &sync.WaitGroup{}
+	wg := sync.WaitGroup{}
 
 	for _, ips := range chunks {
+		wg.Add(1)
 		go func(ips []string, wg *sync.WaitGroup) {
-			wg.Add(1)
 			defer wg.Done()
 
 			for _, ip := range ips {
@@ -39,13 +38,13 @@ func main() {
 						continue
 					} else {
 						if pinger, err = ping.New("", "::"); err != nil {
-							fmt.Fprintf(os.Stderr, "Failed to create a pinger: %v", err)
+							fmt.Fprintf(os.Stderr, "Failed to create a pinger: %v\n", err)
 							continue
 						}
 					}
 				} else {
 					if pinger, err = ping.New("0.0.0.0", ""); err != nil {
-						fmt.Fprintf(os.Stderr, "Failed to create a pinger: %v", err)
+						fmt.Fprintf(os.Stderr, "Failed to create a pinger: %v\n", err)
 						continue
 					}
 				}
@@ -56,12 +55,19 @@ func main() {
 					continue
 				}
 
+				host := ip
+				names, err := net.LookupAddr(ip)
+				if err == nil && len(names) > 0 {
+					host = names[0]
+				}
+
 				var buffer bytes.Buffer
-				command.Execute(&buffer, struct{ Host string }{ip})
-				exec.CommandContext(context.Background(), "/bin/sh", "-c", buffer.String()).Run()
+				command.Execute(&buffer, struct{ Host string }{host})
+				exec.Command("/bin/sh", "-c", buffer.String()).Run()
 				fmt.Printf("[%s] Execute '%s'\n", ip, buffer.String())
 			}
-		}(ips, wg)
+		}(ips, &wg)
 	}
+
 	wg.Wait()
 }
