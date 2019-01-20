@@ -28,12 +28,11 @@ func calcIPs(network string) []string {
 		ips = append(ips, ip.String())
 	}
 
-	// Remove Network + Broadcast
-	return ips[1 : len(ips)-1]
+	return ips
 }
 
 func getIPs(opts *options) []string {
-	var ips, allIPs, excludedIPs []string
+	var IPs, allIPs, excludedIPs []string
 
 	// Generate all IPs from networks
 	for _, net := range opts.Networks {
@@ -53,9 +52,13 @@ func getIPs(opts *options) []string {
 	}
 
 	// Exclude IPs from all IPs
-	ips = funk.Chain(allIPs).Uniq().Filter(func(ip string) bool {
-		return !funk.Contains(excludedIPs, allIPs)
+	IPs = funk.Chain(allIPs).Uniq().Filter(func(ip string) bool {
+		return !funk.Contains(excludedIPs, ip)
 	}).Value().([]string)
 
-	return ips
+	fmt.Println(allIPs)
+	fmt.Println(excludedIPs)
+	fmt.Println(IPs)
+
+	return IPs
 }
