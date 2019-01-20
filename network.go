@@ -56,9 +56,5 @@ func getIPs(opts *options) []string {
 		return !funk.Contains(excludedIPs, ip)
 	}).Value().([]string)
 
-	fmt.Println(allIPs)
-	fmt.Println(excludedIPs)
-	fmt.Println(IPs)
-
 	return IPs
 }
